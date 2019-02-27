@@ -1,0 +1,102 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.exprograma.mobile.mobileagentcpp"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            //https://developer.android.com/studio/projects/gradle-external-native-builds#specify-abi
+//            abiFilters 'armeabi-v7a'
+            abiFilters 'arm64-v8a'
+        }
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_TOOLCHAIN=clang",
+                        "-DANDROID_STL=c++_shared",
+                        "-DANDROID_PLATFORM=android-19"
+//                https://developer.android.com/ndk/guides/cpp-support
+                cppFlags "-frtti -fexceptions"
+                //https://developer.android.com/studio/projects/gradle-external-native-builds#pass-args-flags
+//                targets "native-lib",
+//                        "native-activity",
+//                        "native-math"
+
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    sourceSets {
+        main {
+//            manifest.srcFile 'AndroidManifest.xml'
+//            java.srcDirs = ['src']
+//            res.srcDirs = ['res']
+//            assets.srcDirs = ['assets']
+            //https://developer.android.com/studio/projects/gradle-external-native-builds#jniLibs
+//            jniLibs.srcDirs 'imported-lib/src/', 'more-imported-libs/src/'
+            jniLibs.srcDirs 'imported-lib/'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+// Get libnode.so shared library and include header files from the aar
+// downloaded from my maven repo
+project.afterEvaluate {
+//    logger.error('An error log message.')
+    preBuild.dependsOn(copyDepFiles)
+}
+
+task copyDepFiles {
+    doFirst() {
+        configurations.compile.each {
+            if (it.name.contains("nodelib")) {
+                def aarPath = it.absolutePath
+
+                // Copy libnode.so
+                copy {
+                    from zipTree(aarPath)
+                    into "src/main"
+                    include "jni/**"
+                }
+                ant.move(file: "src/main/jni", tofile: "src/main/jniLibs")
+
+                // Copy node's include headers
+                copy {
+                    from zipTree(aarPath)
+                    into "src/main/include"
+                    include "assets/include/**"
+                }
+                ant.move(file: "src/main/include/assets/include", tofile: "src/main/include")
+                delete "src/main/include/assets"
+            }
+        }
+    }
+}
