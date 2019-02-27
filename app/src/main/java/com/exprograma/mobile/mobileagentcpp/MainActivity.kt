@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun runV8(view:View) {
-        sample_text.text = stringFromJNINew("node","hello").toString()
+        sample_text.text = stringFromJNINew("v8").toString()
     }
 
     /**

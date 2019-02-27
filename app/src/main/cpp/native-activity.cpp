@@ -2,17 +2,15 @@
 // Created by rajitha on 2/6/19.
 //
 #include <jni.h>
-//#include <string>
-//#include <sstream>
 
 #include <libplatform/libplatform.h>
 #include <v8.h>
 
-//#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <android/log.h>
 
-//#include <node.h>
+#define APPNAME "MobileAgentCPP"
 
 //#include <agent_math.h>
 //
@@ -37,15 +35,40 @@
 //}
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNINew(JNIEnv *env, jobject instance, jobjectArray args) {
-//     Prepare fake argv commandline arguments
-//    auto continuousArray = app::makeContinuousArray(env, args);
-//    auto argv = app::getArgv(continuousArray);
-//
+Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNINew(JNIEnv *env, jobject instance, jobjectArray arguments) {
+
+    jsize argument_count = env->GetArrayLength(arguments);
+
+    int c_arguments_size = 0;
+    for (int i = 0; i < argument_count ; i++) {
+        c_arguments_size += strlen(env->GetStringUTFChars((jstring)env->GetObjectArrayElement(arguments, i), 0));
+        c_arguments_size++; // for '\0'
+    }
+
+    char* args_buffer = (char*) calloc(c_arguments_size, sizeof(char));
+
+    char* argv[argument_count];
+
+    char* current_args_position = args_buffer;
+
+    for (int i = 0; i < argument_count ; i++)
+    {
+        const char* current_argument = env->GetStringUTFChars((jstring)env->GetObjectArrayElement(arguments, i), 0);
+
+        strncpy(current_args_position, current_argument, strlen(current_argument));
+
+        argv[i] = current_args_position;
+
+        current_args_position += strlen(current_args_position) + 1;
+    }
+
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "The argument_count: %d", argument_count);
+
 //    v8::V8::InitializeICUDefaultLocation(argv[0]);
 //    v8::V8::InitializeExternalStartupData(argv[0]);
+//    v8::V8::SetNativesDataBlob();
 
-//    v8::V8::InitializeICU();
+    v8::V8::InitializeICU();
     v8::Platform *platform = v8::platform::CreateDefaultPlatform();
     v8::V8::InitializePlatform(platform);
 
@@ -77,6 +100,7 @@ Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNINew(JNIEnv *
         v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
         // Convert the result to an UTF8 string and print it.
         v8::String::Utf8Value utf8(isolate, result);
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %s\n", *utf8);
         printf("%s\n", *utf8);
     }
     // Dispose the isolate and tear down V8.
