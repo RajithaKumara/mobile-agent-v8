@@ -7,22 +7,77 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-    <TextView
-            android:id="@+id/sample_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello World!"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-    <Button
-            android:text="Run"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/button" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
-            android:onClick="runV8"/>
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                      android:orientation="vertical" android:layout_margin="10dp">
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:ems="10"
+                    android:id="@+id/filePath" android:hint="File Path"/>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                <Button
+                        android:text="Load"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:id="@+id/button"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:onClick="loadContent"/>
+                <Button
+                        android:text="Run"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:id="@+id/button2"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:onClick="runV8"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                <Button
+                        android:text="Check Thread"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:id="@+id/button3"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:onClick="checkThread"/>
+                <Button
+                        android:text="Call func"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:id="@+id/button4"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:onClick="callFunc"/>
+            </LinearLayout>
+            <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                <TextView
+                        android:id="@+id/sample_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Hello World!"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+            </ScrollView>
+        </LinearLayout>
+    </ScrollView>
 
 </android.support.constraint.ConstraintLayout>
