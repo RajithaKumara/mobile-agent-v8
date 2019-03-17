@@ -186,18 +186,21 @@ void LoadSnapshotBlob() {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "clazz nullptr");
     }
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 2");
-    jmethodID test = global_env->GetStaticMethodID(clazz,"test","(I)I");
+    jmethodID test = global_env->GetStaticMethodID(clazz,"test","([Ljava/lang/String;)V");
     if (test == nullptr) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "test nullptr");
     }
 
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 3");
 //    jobject result = global_env->CallObjectMethod(global_instance,test);
-    jint result = global_env->CallStaticIntMethod(clazz,test,(jint)5);
+    jobjectArray arr = global_env->NewObjectArray(2,global_env->FindClass("java/lang/String"),global_env->NewStringUTF("str"));
+    global_env->SetObjectArrayElement(arr,1,global_env->NewStringUTF("Next element"));
+
+    global_env->CallStaticVoidMethod(clazz,test,arr);
 
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 4");
 //    const char* str = global_env->GetStringUTFChars((jstring) result,NULL);
-    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %d", result);
+//    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %d", result);
 }
 
 extern "C" JNIEXPORT jstring JNICALL
