@@ -64,6 +64,17 @@ class MainActivity : AppCompatActivity() {
 //        printLog("LOG (runV8): " + v8Thread.name + " up")
     }
 
+    fun runV8FromSnapshot(view: View){
+//        var v8Thread = Thread(Runnable {
+        if (fileContent == null) {
+            fileContent = ""
+        }
+        runNativeV8FromSnapshot(fileContent!!)
+//        })
+//        v8Thread.start()
+//        printLog("LOG (runV8): " + v8Thread.name + " up")
+    }
+
     fun printLog(text: String?) {
         var temp = sample_text.text.toString()
         temp += "\n\n" + text
@@ -75,6 +86,8 @@ class MainActivity : AppCompatActivity() {
     external fun runNativeV8(vararg argv:String): String
 
     external fun callV8Func(vararg argv:String): String
+
+    external fun runNativeV8FromSnapshot(vararg argv:String): String
 
     external fun stringFromCPP(): Int
 

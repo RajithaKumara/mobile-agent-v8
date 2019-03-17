@@ -36,6 +36,8 @@ jobjectArray global_arguments;
 
 void writeFile(const char* filePath, const char* fileContent);
 void writeBinaryFile(const char* filePath,int size, const char* fileContent);
+int readBinaryFileSize(const char* filePath);
+char* readBinaryFile(const char* filePath);
 
 std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
     jsize argument_count = env->GetArrayLength(arguments);
@@ -240,6 +242,37 @@ void writeBinaryFile(const char* filePath,int size, const char* fileContent) {
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "Log: %s to :%s", "File write success", filePath);
 }
 
+int readBinaryFileSize(const char* filePath) {
+    int size;
+    std::ifstream file(filePath,std::ios::in | std::ios::binary);
+    file.seekg(0,std::ios::end);
+    size=file.tellg();
+    return size;
+}
+
+/*int readBinaryFileSize(const char* filePath) {
+    std::fstream::pos_type size;
+    std::ifstream file(filePath,std::ios::in | std::ios::binary | std::ios::ate);
+    if(file) {
+        size = file.tellg();
+    } else {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", "File read fail");
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %d: %s", errno,strerror(errno));
+    }
+    return static_cast<int>(size);
+}*/
+
+char* readBinaryFile(const char* filePath) {
+    int size;
+    std::ifstream file(filePath,std::ios::in | std::ios::binary);
+    file.seekg(0,std::ios::end);
+    size=file.tellg();
+
+    char* chunk = new char[size];
+    file.read(chunk,size);
+    return chunk;
+}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_exprograma_mobile_mobileagentcpp_MainActivity_runNativeV8(JNIEnv *env, jobject instance, jobjectArray arguments) {
 
@@ -275,6 +308,79 @@ Java_com_exprograma_mobile_mobileagentcpp_MainActivity_callV8Func(JNIEnv *env, j
     } catch (std::exception& e) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error(std::exception): %s", e.what());
     }
+
+    return env->NewStringUTF(hello.c_str());
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_exprograma_mobile_mobileagentcpp_MainActivity_runNativeV8FromSnapshot(JNIEnv *env, jobject instance, jobjectArray arguments) {
+
+    std::string hello = "Hello from JNI activity C++ (JNI_callV8Func)";
+
+//    int size = readBinaryFileSize("/storage/3C99-9E99/FYP/jni.bin");
+//    char* blobData = readBinaryFile("/storage/3C99-9E99/FYP/jni.bin");
+//
+//    v8::StartupData startupDataBlob;
+//    startupDataBlob.raw_size = size;
+//    startupDataBlob.data = blobData;
+
+    v8::V8::InitializeICU();
+    v8::V8::InitializeExternalStartupData("/storage/3C99-9E99/FYP/v8data/");
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "runNativeV8FromSnapshot: %d\n", size);
+    v8::Platform *platform = v8::platform::CreateDefaultPlatform();
+    v8::V8::InitializePlatform(platform);
+    v8::V8::Initialize();
+
+    // Create a new Isolate and make it the current one.
+    v8::Isolate::CreateParams create_params;
+    create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+    v8::Isolate* isolate = v8::Isolate::New(create_params);
+    {
+        v8::Isolate::Scope isolate_scope(isolate);
+        // Create a stack-allocated handle scope.
+        v8::HandleScope handle_scope(isolate);
+        // Create a new context.
+        v8::Local<v8::Context> context = v8::Context::New(isolate);
+        // Enter the context for compiling and running the hello world script.
+        v8::Context::Scope context_scope(context);
+        // Create a string containing the JavaScript source code.
+        v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, "'hello'+'hello'", v8::NewStringType::kNormal).ToLocalChecked();
+        // Compile the source code.
+        v8::Local<v8::Script> script = v8::Script::Compile(context, source).ToLocalChecked();
+        // Run the script to get the result.
+        v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
+        // Convert the result to an UTF8 string and print it.
+        v8::String::Utf8Value utf8(isolate, result);
+
+        printf("%s\n", *utf8);
+
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %s\n", *utf8);
+
+        //Call to js function
+        v8::Handle<v8::Object> global = context->Global();
+        v8::Handle<v8::Value> function = global->Get(v8::String::NewFromUtf8(isolate, "addStr"));
+
+        if ( function->IsFunction() )
+        {
+            v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast(function);
+            int func_argc = 2;
+            v8::Handle<v8::Value> func_argv[func_argc];
+            func_argv[0] = v8::String::NewFromUtf8(isolate, "Hello");
+            func_argv[1] = v8::String::NewFromUtf8(isolate, ", world!");
+            v8::Handle<v8::Value> func_result = func->Call(global, func_argc, func_argv);
+
+            v8::String::Utf8Value func_utf8(isolate, func_result);
+
+            __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %s\n", *func_utf8);
+        } else {
+            __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %s\n", "Not a function");
+        }
+    }
+
+    // Dispose the isolate and tear down V8.
+    isolate->Dispose();
+    v8::V8::Dispose();
+    v8::V8::ShutdownPlatform();
 
     return env->NewStringUTF(hello.c_str());
 }
