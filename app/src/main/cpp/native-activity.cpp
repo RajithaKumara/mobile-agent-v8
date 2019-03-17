@@ -27,16 +27,8 @@
 //    return env->NewStringUTF(result.c_str());
 //}
 
-//extern "C" JNIEXPORT jstring JNICALL
-//Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNINew(JNIEnv *env, jobject /* this */) {
-//
-//    std::string hello = "Hello from JNI activity C++";
-//    return env->NewStringUTF(hello.c_str());
-//}
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNINew(JNIEnv *env, jobject instance, jobjectArray arguments) {
-
+std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
     jsize argument_count = env->GetArrayLength(arguments);
 
     int c_arguments_size = 0;
@@ -80,7 +72,10 @@ Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNINew(JNIEnv *
     // Create a new Isolate and make it the current one.
     v8::Isolate::CreateParams create_params;
     create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-    v8::Isolate* isolate = v8::Isolate::New(create_params);
+    v8::SnapshotCreator snapshot;
+    v8::Isolate* isolate = snapshot.GetIsolate();
+//    v8::Isolate* isolate = v8::Isolate::New(create_params);
+//    v8::SnapshotCreator snapshot(isolate, create_params.external_references);
     {
         v8::Isolate::Scope isolate_scope(isolate);
         // Create a stack-allocated handle scope.
@@ -122,14 +117,63 @@ Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNINew(JNIEnv *
         } else {
             __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %s\n", "Not a function");
         }
+
+        snapshot.SetDefaultContext(context);
     }
+    v8::StartupData startupDataBlob = snapshot.CreateBlob(v8::SnapshotCreator::FunctionCodeHandling::kKeep);
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %d\n", startupDataBlob.raw_size);
+
     // Dispose the isolate and tear down V8.
-    isolate->Dispose();
-    v8::V8::Dispose();
-    v8::V8::ShutdownPlatform();
-    delete create_params.array_buffer_allocator;
+//    isolate->Dispose();
+//    v8::V8::Dispose();
+//    v8::V8::ShutdownPlatform();
+//    delete create_params.array_buffer_allocator;
+//    free(args_buffer);
 
     std::string hello = v8::V8::GetVersion();
+
+    return hello;
+}
+
+std::string CallV8Func(JNIEnv *env, jobject instance, jobjectArray arguments){
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    if (!isolate) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", "NULL isolate");
+    } else {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", "not a NULL isolate");
+    }
+
+    std::string hello = "Hello from JNI activity C++ (CallV8Func)";
+    return hello;
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_exprograma_mobile_mobileagentcpp_MainActivity_runNativeV8(JNIEnv *env, jobject instance, jobjectArray arguments) {
+
+
+    std::string hello = "Hello from JNI activity C++";
+    try {
+        hello = RunV8(env,instance,arguments);
+    } catch (const char* msg) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", msg);
+    } catch (std::exception& e) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error(std::exception): %s", e.what());
+    }
+
+    return env->NewStringUTF(hello.c_str());
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_exprograma_mobile_mobileagentcpp_MainActivity_callV8Func(JNIEnv *env, jobject instance, jobjectArray arguments) {
+
+    std::string hello = "Hello from JNI activity C++ (JNI_callV8Func)";
+    try {
+        hello = CallV8Func(env,instance,arguments);
+    } catch (const char* msg) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", msg);
+    } catch (std::exception& e) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error(std::exception): %s", e.what());
+    }
 
     return env->NewStringUTF(hello.c_str());
 }

@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.Exception
+import java.lang.IllegalArgumentException
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,15 +22,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun runV8(view:View) {
-        v8Thread = Thread(Runnable {
-            if (fileContent == null) {
-                fileContent = ""
-            }
-            stringFromJNINew(fileContent!!)
-        })
-        v8Thread.priority = Thread.MAX_PRIORITY
-        v8Thread.start()
-        printLog("LOG (runV8): " + v8Thread.name + " up")
+        try {
+            v8Thread = Thread(Runnable {
+                if (fileContent == null) {
+                    fileContent = ""
+                }
+                runNativeV8(fileContent!!)
+            })
+//            v8Thread.priority = Thread.MAX_PRIORITY
+            v8Thread.start()
+            printLog("LOG (runV8): " + v8Thread.name + " up")
+//        } catch (e:IllegalArgumentException) {
+//            printLog("Error (runV8): " + e.message)
+        } catch (e:Exception) {
+            printLog("Error (runV8): " + e.message)
+        }
     }
 
     fun loadContent(view: View) {
@@ -46,14 +54,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun callFunc(view: View){
-        v8Thread = Thread(Runnable {
+//        var v8Thread = Thread(Runnable {
             if (fileContent == null) {
                 fileContent = ""
             }
-            stringFromJNINew(fileContent!!)
-        })
-        v8Thread.start()
-        printLog("LOG (runV8): " + v8Thread.name + " up")
+            callV8Func(fileContent!!)
+//        })
+//        v8Thread.start()
+//        printLog("LOG (runV8): " + v8Thread.name + " up")
     }
 
     fun printLog(text: String?) {
@@ -64,7 +72,9 @@ class MainActivity : AppCompatActivity() {
 
     external fun stringFromJNI(): String
 
-    external fun stringFromJNINew(vararg argv:String): String
+    external fun runNativeV8(vararg argv:String): String
+
+    external fun callV8Func(vararg argv:String): String
 
     external fun stringFromCPP(): Int
 

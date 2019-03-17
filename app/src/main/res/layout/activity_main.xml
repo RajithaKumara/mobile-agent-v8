@@ -21,49 +21,60 @@
             <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintHorizontal_bias="0.213" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintVertical_bias="0.386" app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" android:layout_margin="5dp">
                 <Button
-                        android:text="Load"
+                        android:text="Load Content"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:id="@+id/button"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:layout_height="wrap_content" android:id="@+id/button" android:layout_weight="1"
                         android:onClick="loadContent"/>
                 <Button
-                        android:text="Run"
+                        android:text="Run V8"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:id="@+id/button2"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:layout_height="wrap_content" android:id="@+id/button1" android:layout_weight="1"
                         android:onClick="runV8"/>
             </LinearLayout>
             <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintHorizontal_bias="0.213" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintVertical_bias="0.386" app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" android:layout_margin="5dp">
                 <Button
                         android:text="Check Thread"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:id="@+id/button3"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:layout_height="wrap_content" android:id="@+id/button2" android:layout_weight="1"
                         android:onClick="checkThread"/>
                 <Button
-                        android:text="Call func"
+                        android:text="Call Func"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:id="@+id/button4"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintVertical_bias="0.965" app:layout_constraintHorizontal_bias="0.5"
+                        android:layout_height="wrap_content" android:id="@+id/button3" android:layout_weight="1"
                         android:onClick="callFunc"/>
             </LinearLayout>
+            <!--<LinearLayout-->
+                    <!--android:orientation="horizontal"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--app:layout_constraintStart_toStartOf="parent"-->
+                    <!--app:layout_constraintHorizontal_bias="0.213" app:layout_constraintEnd_toEndOf="parent"-->
+                    <!--app:layout_constraintVertical_bias="0.386" app:layout_constraintTop_toTopOf="parent"-->
+                    <!--app:layout_constraintBottom_toBottomOf="parent" android:layout_margin="5dp">-->
+                <!--<Button-->
+                        <!--android:text="Load Content"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content" android:id="@+id/button4" android:layout_weight="1"-->
+                        <!--android:onClick="loadContent"/>-->
+                <!--<Button-->
+                        <!--android:text="Eval"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content" android:id="@+id/button5" android:layout_weight="1"-->
+                        <!--android:onClick="runV8"/>-->
+            <!--</LinearLayout>-->
             <ScrollView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
