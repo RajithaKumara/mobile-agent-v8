@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <android/log.h>
+#include <pthread.h>
 
 #define APPNAME "MobileAgentCPP"
 
@@ -27,6 +28,9 @@
 //    return env->NewStringUTF(result.c_str());
 //}
 
+JNIEnv *global_env;
+jobject global_instance;
+jobjectArray global_arguments;
 
 std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
     jsize argument_count = env->GetArrayLength(arguments);
@@ -127,7 +131,7 @@ std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
 //    isolate->Dispose();
 //    v8::V8::Dispose();
 //    v8::V8::ShutdownPlatform();
-//    delete create_params.array_buffer_allocator;
+    delete create_params.array_buffer_allocator;
 //    free(args_buffer);
 
     std::string hello = v8::V8::GetVersion();
@@ -147,18 +151,51 @@ std::string CallV8Func(JNIEnv *env, jobject instance, jobjectArray arguments){
     return hello;
 }
 
+void *my_entry_function(void *params){
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "Log: %s", "my_entry_function");
+    RunV8(global_env,global_instance,global_arguments);
+}
+
+void start_thread() {
+    int pt;
+    pthread_t thread0;
+//    int parameter = 1;
+    pt = pthread_create(&thread0,NULL,&my_entry_function,NULL);
+    pthread_join(thread0,NULL);
+    if (pt!=0){
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", "pthread_create");
+    }
+}
+
+int getId() {
+    pthread_t ptid = pthread_self();
+    int threadId = 0;
+    memcpy(&threadId,&ptid, sizeof(ptid));
+    return threadId;
+}
+
+//void *my_entry_function(void *params){
+//    __android_log_print(ANDROID_LOG_WARN, APPNAME, "Log: %s", "my_entry_function");
+//}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_exprograma_mobile_mobileagentcpp_MainActivity_runNativeV8(JNIEnv *env, jobject instance, jobjectArray arguments) {
 
+    global_env = env;
+    global_instance = instance;
+    global_arguments = arguments;
+
+//    start_thread();
+//    __android_log_print(ANDROID_LOG_WARN, APPNAME, "getId: %d", getId());
 
     std::string hello = "Hello from JNI activity C++";
-    try {
-        hello = RunV8(env,instance,arguments);
-    } catch (const char* msg) {
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", msg);
-    } catch (std::exception& e) {
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error(std::exception): %s", e.what());
-    }
+//    try {
+//        hello = RunV8(env,instance,arguments);
+//    } catch (const char* msg) {
+//        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", msg);
+//    } catch (std::exception& e) {
+//        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error(std::exception): %s", e.what());
+//    }
 
     return env->NewStringUTF(hello.c_str());
 }
