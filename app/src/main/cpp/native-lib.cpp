@@ -1,6 +1,9 @@
 #include <jni.h>
 #include <string>
 
+#include <libplatform/libplatform.h>
+#include <v8.h>
+
 
 //#include <EGL/egl.h>
 //#include <GLES/gl.h>
@@ -49,7 +52,8 @@ Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNI(
 #define ABI "unknown"
 #endif
 
-    std::string hello = "Hello from JNI C++ ! Compiled with ABI " ABI ".";
+    std::string v8Ver = v8::V8::GetVersion();
+    std::string hello = "Hello from JNI C++ ! Compiled with ABI " ABI ". V8 version: "+v8Ver;
     return env->NewStringUTF(hello.c_str());
 }
 
