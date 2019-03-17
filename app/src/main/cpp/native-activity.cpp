@@ -7,6 +7,8 @@
 #include <v8.h>
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <fstream>
 #include <string.h>
 #include <android/log.h>
 #include <pthread.h>
@@ -31,6 +33,9 @@
 JNIEnv *global_env;
 jobject global_instance;
 jobjectArray global_arguments;
+
+void writeFile(const char* filePath, const char* fileContent);
+void writeBinaryFile(const char* filePath,int size, const char* fileContent);
 
 std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
     jsize argument_count = env->GetArrayLength(arguments);
@@ -127,6 +132,8 @@ std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
     v8::StartupData startupDataBlob = snapshot.CreateBlob(v8::SnapshotCreator::FunctionCodeHandling::kKeep);
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %d\n", startupDataBlob.raw_size);
 
+    writeBinaryFile("/storage/3C99-9E99/FYP/jni.bin",startupDataBlob.raw_size,startupDataBlob.data);
+
     // Dispose the isolate and tear down V8.
 //    isolate->Dispose();
 //    v8::V8::Dispose();
@@ -191,44 +198,68 @@ void LoadSnapshotBlob() {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "constructor nullptr");
     }
 
-    jmethodID test = global_env->GetMethodID(clazz,"test","([Ljava/lang/String;)V");
-    if (test == nullptr) {
+    jmethodID getLoc = global_env->GetMethodID(clazz,"getExternalStorageDir","()Ljava/lang/String;");
+    if (getLoc == nullptr) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "test nullptr");
     }
 
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 3");
 //    jobject result = global_env->CallObjectMethod(global_instance,test);
-    jobjectArray arr = global_env->NewObjectArray(2,global_env->FindClass("java/lang/String"),global_env->NewStringUTF("str"));
-    global_env->SetObjectArrayElement(arr,1,global_env->NewStringUTF("Next element"));
+//    jobjectArray arr = global_env->NewObjectArray(2,global_env->FindClass("java/lang/String"),global_env->NewStringUTF("str"));
+//    global_env->SetObjectArrayElement(arr,1,global_env->NewStringUTF("Next element"));
 
     jobject clazzObj = global_env->NewObject(clazz,constructor);
-    global_env->CallVoidMethod(clazzObj,test,arr);
+    jobject result = global_env->CallObjectMethod(clazzObj,getLoc);
+//    global_env->DeleteLocalRef(arr);
 
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 4");
-//    const char* str = global_env->GetStringUTFChars((jstring) result,NULL);
-//    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %d", result);
+    const char* str = global_env->GetStringUTFChars((jstring) result,NULL);
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", str);
+
+    writeFile("/storage/3C99-9E99/FYP/jni.txt","hello world");
+}
+
+void writeFile(const char* filePath, const char* fileContent) {
+    FILE* file = fopen(filePath,"w+");
+    if (file != NULL) {
+        fputs(fileContent,file);
+        fflush(file);
+        fclose(file);
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Log: %s to :%s", "File write success", filePath);
+    } else {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", "File write fail");
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %d: %s", errno,strerror(errno));
+    }
+}
+
+void writeBinaryFile(const char* filePath,int size, const char* fileContent) {
+//    char buffer[size];
+    std::ofstream file(filePath,std::ios::out | std::ios::binary);
+    file.write(fileContent,size);
+    file.close();
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "Log: %s to :%s", "File write success", filePath);
 }
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_exprograma_mobile_mobileagentcpp_MainActivity_runNativeV8(JNIEnv *env, jobject instance, jobjectArray arguments) {
 
-    global_env = env;
-    global_instance = instance;
-    global_arguments = arguments;
+//    global_env = env;
+//    global_instance = instance;
+//    global_arguments = arguments;
 
-    LoadSnapshotBlob();
+//    LoadSnapshotBlob();
 
 //    start_thread();
 //    __android_log_print(ANDROID_LOG_WARN, APPNAME, "getId: %d", getId());
 
     std::string hello = "Hello from JNI activity C++";
-//    try {
-//        hello = RunV8(env,instance,arguments);
-//    } catch (const char* msg) {
-//        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", msg);
-//    } catch (std::exception& e) {
-//        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error(std::exception): %s", e.what());
-//    }
+    try {
+        hello = RunV8(env,instance,arguments);
+    } catch (const char* msg) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error: %s", msg);
+    } catch (std::exception& e) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error(std::exception): %s", e.what());
+    }
 
     return env->NewStringUTF(hello.c_str());
 }
