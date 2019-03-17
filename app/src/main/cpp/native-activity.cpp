@@ -178,12 +178,36 @@ int getId() {
 //    __android_log_print(ANDROID_LOG_WARN, APPNAME, "Log: %s", "my_entry_function");
 //}
 
+void LoadSnapshotBlob() {
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 1");
+    jclass clazz = global_env->FindClass("com/exprograma/mobile/mobileagentcpp/JNI");
+
+    if (clazz == nullptr) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "clazz nullptr");
+    }
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 2");
+    jmethodID test = global_env->GetStaticMethodID(clazz,"test","()V");
+    if (test == nullptr) {
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "test nullptr");
+    }
+
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 3");
+//    jobject result = global_env->CallObjectMethod(global_instance,test);
+    global_env->CallStaticVoidMethod(clazz,test);
+
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", "here --- 4");
+//    const char* str = global_env->GetStringUTFChars((jstring) result,NULL);
+//    __android_log_print(ANDROID_LOG_WARN, APPNAME, "LoadSnapshotBlob: %s", str);
+}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_exprograma_mobile_mobileagentcpp_MainActivity_runNativeV8(JNIEnv *env, jobject instance, jobjectArray arguments) {
 
     global_env = env;
     global_instance = instance;
     global_arguments = arguments;
+
+    LoadSnapshotBlob();
 
 //    start_thread();
 //    __android_log_print(ANDROID_LOG_WARN, APPNAME, "getId: %d", getId());
