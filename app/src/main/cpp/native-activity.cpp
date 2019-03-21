@@ -88,8 +88,8 @@ std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
     v8::V8::Initialize();
 
     // Create a new Isolate and make it the current one.
-    v8::Isolate::CreateParams create_params;
-    create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+//    v8::Isolate::CreateParams create_params;
+//    create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
     v8::SnapshotCreator snapshot;
     v8::Isolate* isolate = snapshot.GetIsolate();
 //    v8::Isolate* isolate = v8::Isolate::New(create_params);
@@ -147,7 +147,7 @@ std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
 //    isolate->Dispose();
 //    v8::V8::Dispose();
 //    v8::V8::ShutdownPlatform();
-    delete create_params.array_buffer_allocator;
+//    delete create_params.array_buffer_allocator;
 //    free(args_buffer);
 
     std::string hello = v8::V8::GetVersion();
