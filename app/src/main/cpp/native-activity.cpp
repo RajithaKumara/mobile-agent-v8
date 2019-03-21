@@ -67,12 +67,19 @@ std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
 
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "The argument_count: %d", argument_count);
     __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %s\n", argv[0]);
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "printf: %s\n", argv[1]);
 
-//    v8::V8::InitializeICUDefaultLocation(argv[0]);
-//    v8::V8::InitializeExternalStartupData(argv[0]);
+    const char* icu_exec_path = argv[0];
+    const char* natives_blob = argv[0];
+//    const char* natives_blob = "/storage/3C99-9E99/FYP/v8data/initial/";
+    const char* snapshot_blob = argv[0];
+    const char* script_data = argv[1];
+
+    v8::V8::InitializeICUDefaultLocation(icu_exec_path);
+    v8::V8::InitializeExternalStartupData(natives_blob);
 //    v8::V8::SetNativesDataBlob();
 
-    v8::V8::InitializeICU();
+//    v8::V8::InitializeICU();
     v8::Platform *platform = v8::platform::CreateDefaultPlatform();
     v8::V8::InitializePlatform(platform);
 
@@ -96,7 +103,7 @@ std::string RunV8(JNIEnv *env, jobject instance, jobjectArray arguments){
         // Enter the context for compiling and running the hello world script.
         v8::Context::Scope context_scope(context);
         // Create a string containing the JavaScript source code.
-        v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, argv[0], v8::NewStringType::kNormal).ToLocalChecked();
+        v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, script_data, v8::NewStringType::kNormal).ToLocalChecked();
         // Compile the source code.
         v8::Local<v8::Script> script = v8::Script::Compile(context, source).ToLocalChecked();
         // Run the script to get the result.
@@ -324,9 +331,15 @@ Java_com_exprograma_mobile_mobileagentcpp_MainActivity_runNativeV8FromSnapshot(J
 //    startupDataBlob.raw_size = size;
 //    startupDataBlob.data = blobData;
 
+    jclass clazz = env->FindClass("com/exprograma/mobile/mobileagentcpp/JNI");
+    jmethodID getLoc = env->GetStaticMethodID(clazz,"getExternalStorageDir","()Ljava/lang/String;");
+    jobject result = env->CallStaticObjectMethod(clazz,getLoc);
+    const char* str = env->GetStringUTFChars((jstring) result,NULL);
+    __android_log_print(ANDROID_LOG_WARN, APPNAME, "getExternalStorageDir: %s", str);
+
     v8::V8::InitializeICU();
-    v8::V8::InitializeExternalStartupData("/storage/3C99-9E99/FYP/v8data/");
-    __android_log_print(ANDROID_LOG_WARN, APPNAME, "runNativeV8FromSnapshot: %d\n", size);
+    v8::V8::InitializeExternalStartupData(str);
+//    __android_log_print(ANDROID_LOG_WARN, APPNAME, "runNativeV8FromSnapshot: %d\n", size);
     v8::Platform *platform = v8::platform::CreateDefaultPlatform();
     v8::V8::InitializePlatform(platform);
     v8::V8::Initialize();
