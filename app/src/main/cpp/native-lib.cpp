@@ -1,19 +1,7 @@
 #include <jni.h>
 #include <string>
 
-#include <libplatform/libplatform.h>
 #include <v8.h>
-
-
-//#include <EGL/egl.h>
-//#include <GLES/gl.h>
-
-
-//#include <android/sensor.h>
-//#include <android/log.h>
-//#include <android_native_app_glue>
-//#include <android/window.h>
-//#include <node.h>
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNI(
@@ -59,10 +47,5 @@ Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromJNI(
 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_exprograma_mobile_mobileagentcpp_MainActivity_stringFromCPP(JNIEnv *env, jobject /* this */) {
-    std::string hello = "Hello from C++";
-//    node::Start();
-
-//    (*env)->NewStringUTF("Hello from JNI ! Compiled with ABI ");
-//    return env->NewStringUTF(hello.c_str());
     return env->GetVersion();
 }

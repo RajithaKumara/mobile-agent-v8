@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
 
         sample_text.text = stringFromJNI()
         fileSystem = FileSystem()
-        printLog(fileSystem?.copyAssetsToFilesDir(assets, filesDir))
+//        printLog(fileSystem?.copyAssetsToFilesDir(assets, filesDir))
     }
 
     fun runV8(view: View) {
@@ -95,8 +95,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         init {
             System.loadLibrary("native-lib")
-            System.loadLibrary("native-math")
-            System.loadLibrary("native-activity")
+//            System.loadLibrary("native-activity")
         }
     }
 }
