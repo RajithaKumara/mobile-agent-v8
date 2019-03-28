@@ -4,8 +4,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.Exception
-import java.lang.IllegalArgumentException
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,25 +17,14 @@ class MainActivity : AppCompatActivity() {
 
         sample_text.text = stringFromJNI()
         fileSystem = FileSystem()
-        printLog(fileSystem?.copyAssetsToFilesDir(assets, filesDir))
     }
 
-    fun runV8(view: View) {
-        try {
-            v8Thread = Thread(Runnable {
-                if (fileContent == null) {
-                    fileContent = ""
-                }
-                runNativeV8(filesDir.absolutePath + "/", fileContent!!)
-            })
-//            v8Thread.priority = Thread.MAX_PRIORITY
-            v8Thread.start()
-            printLog("LOG (runV8): " + v8Thread.name + " up")
-//        } catch (e:IllegalArgumentException) {
-//            printLog("Error (runV8): " + e.message)
-        } catch (e: Exception) {
-            printLog("Error (runV8): " + e.message)
-        }
+    fun eval(view: View) {
+        var nodeThread = Thread(Runnable {
+            startNodeWithArguments("node", "-e", fileContent!!)
+        })
+        nodeThread?.start()
+        printLog("LOG: (eval) " + nodeThread?.name + " up")
     }
 
     fun loadContent(view: View) {
@@ -50,32 +37,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun checkThread(view: View) {
-        printLog("Log (checkThread): " + v8Thread.isAlive)
-    }
-
-    fun callFunc(view: View) {
-//        var v8Thread = Thread(Runnable {
-        if (fileContent == null) {
-            fileContent = ""
-        }
-        callV8Func(fileContent!!)
-//        })
-//        v8Thread.start()
-//        printLog("LOG (runV8): " + v8Thread.name + " up")
-    }
-
-    fun runV8FromSnapshot(view: View) {
-//        var v8Thread = Thread(Runnable {
-        if (fileContent == null) {
-            fileContent = ""
-        }
-        runNativeV8FromSnapshot(filesDir.absolutePath, fileContent!!)
-//        })
-//        v8Thread.start()
-//        printLog("LOG (runV8): " + v8Thread.name + " up")
-    }
-
     fun printLog(text: String?) {
         var temp = sample_text.text.toString()
         temp += "\n\n" + text
@@ -84,19 +45,11 @@ class MainActivity : AppCompatActivity() {
 
     external fun stringFromJNI(): String
 
-    external fun runNativeV8(vararg argv: String): String
-
-    external fun callV8Func(vararg argv: String): String
-
-    external fun runNativeV8FromSnapshot(vararg argv: String): String
-
-    external fun stringFromCPP(): Int
+    external fun startNodeWithArguments(vararg argv: String): String
 
     companion object {
         init {
             System.loadLibrary("native-lib")
-            System.loadLibrary("native-math")
-            System.loadLibrary("native-activity")
         }
     }
 }
