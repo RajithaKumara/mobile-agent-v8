@@ -95,7 +95,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         init {
             System.loadLibrary("native-lib")
-            System.loadLibrary("native-math")
             System.loadLibrary("native-activity")
         }
     }
